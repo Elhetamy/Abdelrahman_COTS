@@ -1,3 +1,11 @@
+/**
+ *
+ * @file DIO_program.c
+ * @author Abdelrhaman Elhetamy
+ * @brief This is the file that implements the DIO driver in MCAL
+ * @version 1.00
+ */
+
 #include "STD_TYPES.h"
 #include "BIT_MATH.h"
 
@@ -7,7 +15,13 @@
 #include "DIO_reg.h"
 
 
-
+/**
+ * @brief This function is used to set a required pin direction
+ * @param Copy_u8Port this parameter is used to choose the required port  among DIO_u8PORTA , DIO_u8PORTB , DIO_u8PORTC , DIO_u8PORTD
+ * @param Copy_u8Pin  this parameter is used to choose the required pin  among DIO_u8PIN0 , DIO_u8PIN1,DIO_u8PIN2,DIO_u8PIN3,DIO_u8PIN4,DIO_u8PIN5,DIO_u8PIN6,DIO_u8PIN7
+ * @param Copy_u8Direction this parameter is used to choose the required direction among DIO_u8PIN_INPUT , DIO_u8PIN_OUTPUT
+ * @return
+ */
 uint8 DIO_u8SetPinDirection(uint8 Copy_u8Port,uint8 Copy_u8Pin,uint8 Copy_u8Direction) {
 
 	uint8 Local_u8ErrorState = OK;
@@ -41,6 +55,14 @@ uint8 DIO_u8SetPinDirection(uint8 Copy_u8Port,uint8 Copy_u8Pin,uint8 Copy_u8Dire
 	return Local_u8ErrorState;
 }
 
+/**
+ *
+ * @param Copy_u8Port this parameter is used to choose the required port  among DIO_u8PORTA , DIO_u8PORTB , DIO_u8PORTC , DIO_u8PORTD
+ * @param Copy_u8Pin this parameter is used to choose the required pin  among DIO_u8PIN0 , DIO_u8PIN1,DIO_u8PIN2,DIO_u8PIN3,DIO_u8PIN4,DIO_u8PIN5,DIO_u8PIN6,DIO_u8PIN7
+ * @param Copy_u8Value this parameter is used to set the pin value among DIO_u8PIN_Low , DIO_u8PIN_High
+ * @return
+ */
+
 uint8 DIO_u8SetPinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin,uint8 Copy_u8Value)
 {
 	uint8 Local_u8ErrorState = OK;
@@ -73,7 +95,13 @@ uint8 DIO_u8SetPinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin,uint8 Copy_u8Value)
 	}
 	return Local_u8ErrorState;
 }
-
+/**
+ * @brief This function get the pin value
+ * @param Copy_u8Port	this parameter is used to choose the required port  among DIO_u8PORTA , DIO_u8PORTB , DIO_u8PORTC , DIO_u8PORTD
+ * @param Copy_u8Pin	this parameter is used to choose the required pin  among DIO_u8PIN0 , DIO_u8PIN1,DIO_u8PIN2,DIO_u8PIN3,DIO_u8PIN4,DIO_u8PIN5,DIO_u8PIN6,DIO_u8PIN7
+ * @param Copy_pu8Value	this pointer refers to the address of the returned value
+ * @return
+ */
 uint8 DIO_u8GetPinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin,uint8* Copy_pu8Value)
 {
 	uint8 Local_u8ErrorState = OK;
@@ -98,6 +126,11 @@ uint8 DIO_u8GetPinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin,uint8* Copy_pu8Value)
 	return Local_u8ErrorState;
 }
 
+/**
+ * @brief this function is used to set the port direction
+ * @param Copy_u8Port this parameter is used to choose the required port  among DIO_u8PORTA , DIO_u8PORTB , DIO_u8PORTC , DIO_u8PORTD
+ * @return
+ */
 uint8 DIO_u8SetPortDirection(uint8 Copy_u8Port,uint8 Copy_u8Direction) {
 	uint8 Local_u8ErrorState = OK;
 
@@ -113,6 +146,13 @@ uint8 DIO_u8SetPortDirection(uint8 Copy_u8Port,uint8 Copy_u8Direction) {
 	return Local_u8ErrorState;
 }
 
+/**
+ * @brief this function is used to set the port value
+ * @param Copy_u8Port this parameter is used to choose the required port  among DIO_u8PORTA , DIO_u8PORTB , DIO_u8PORTC , DIO_u8PORTD
+ * @param Copy_u8Value this parameter is used to choose the required pin  among DIO_u8PIN0 , DIO_u8PIN1,DIO_u8PIN2,DIO_u8PIN3,DIO_u8PIN4,DIO_u8PIN5,DIO_u8PIN6,DIO_u8PIN7
+ * @return
+ */
+
 uint8 DIO_u8SetPortValue(uint8 Copy_u8Port,uint8 Copy_u8Value) {
 
 
@@ -127,6 +167,13 @@ uint8 DIO_u8SetPortValue(uint8 Copy_u8Port,uint8 Copy_u8Value) {
 
 	return Local_u8ErrorState;
 }
+
+/**
+ * @brief This function is used to toggle the pin value
+ * @param Copy_u8Port this parameter is used to choose the required port  among DIO_u8PORTA , DIO_u8PORTB , DIO_u8PORTC , DIO_u8PORTD
+ * @param Copy_u8Pin  this parameter is used to choose the required pin  among DIO_u8PIN0 , DIO_u8PIN1,DIO_u8PIN2,DIO_u8PIN3,DIO_u8PIN4,DIO_u8PIN5,DIO_u8PIN6,DIO_u8PIN7
+ * @return
+ */
 
 uint8 DIO_u8TogglePinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin) {
 	uint8 Local_u8ErrorState = OK;

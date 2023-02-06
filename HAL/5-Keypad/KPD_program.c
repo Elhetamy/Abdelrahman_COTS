@@ -15,6 +15,10 @@
 #include "KPD_prv.h"
 
 /*required : All row pins are input pulled up, all column pins are output high*/
+/**
+ * This function return the pressed key from the keypad
+ * @return
+ */
 uint8 KPD_u8GetPressedKey(void)
 {
 
