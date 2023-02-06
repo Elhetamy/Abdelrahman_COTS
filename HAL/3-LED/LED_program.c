@@ -15,7 +15,10 @@
 #include "LED_interface.h"
 #include "LED_cfg.h"
 #include "LED_prv.h"
-
+/**
+ * @brief This function is used to Turn the LED on
+ * @param Object This parameter is used to access the struct
+ */
 void LED_voidON(const LED_t * Object)
 {
 	DIO_u8SetPinDirection(Object->Port,Object->Pin,DIO_u8PIN_OUTPUT);
@@ -29,7 +32,10 @@ void LED_voidON(const LED_t * Object)
 		DIO_u8SetPinValue(Object->Port,Object->Pin,DIO_u8PIN_Low);
 	}
 }
-
+/**
+ * @brief This function is used to Turn the LED on
+ * @param Object This parameter is used to access the struct
+ */
 void LED_voidOFF(const LED_t * Object)
 {
 	DIO_u8SetPinDirection(Object->Port,Object->Pin,DIO_u8PIN_OUTPUT);
@@ -42,7 +48,10 @@ void LED_voidOFF(const LED_t * Object)
 		DIO_u8SetPinValue(Object->Port,Object->Pin,DIO_u8PIN_High);
 	}
 }
-
+/**
+ * @brief This function is used the LED every 500ms
+ * @param Object This parameter is used to access the struct
+ */
 void LED_voidToggle(const LED_t * Object)
 {
 	DIO_u8SetPinDirection(Object->Port,Object->Pin,DIO_u8PIN_OUTPUT);
