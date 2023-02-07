@@ -26,5 +26,6 @@ uint8 EXTI_u8InterruptEnable(uint8 Copy_u8Interrupt);
 uint8 EXTI_u8InterruptDisable(uint8 Copy_u8Interrupt);
 uint8 EXTI_voidSenseCtrl(uint8 Copy_u8Interrupt,uint8 Copy_u8SenseCtrl);
 
+uint8 EXTI_u8SetCallBack(uint8 Copy_u8Interrupt,void (*Copy_pfFuncPtr)(void));
 
 #endif /* EXTI_INTERFACE_H_ */
