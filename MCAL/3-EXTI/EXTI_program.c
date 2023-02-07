@@ -17,6 +17,8 @@
 #include "GIE_interface.h"
 #include "DIO_interface.h"
 
+static void (*EXTI_pfINTFuncPtr[3])(void) ={NULL}/*Array of pointers to functions to hold ISR CallBacks*/;
+
 /**
  * @brief This Function Enable the desired interrupt
  * @param Copy_u8Interrupt	This parameter is the interrupt you want to enable
@@ -128,7 +130,6 @@ uint8 EXTI_voidSenseCtrl(uint8 Copy_u8Interrupt,uint8 Copy_u8SenseCtrl)
  */
 void EXTI_voidInitInt0(void)
 {
-	GIE_voidGlobalInterruptEnable();
 	/**
 	 * Initial values for EXTI_u8INT0
 	 */
@@ -221,6 +222,55 @@ void EXTI_voidInitInt2(void)
 #else
 #error Wrong INT2_INITIAL_STATE configuration option
 #endif
+}
 
+uint8 EXTI_u8SetCallBack(uint8 Copy_u8Interrupt,void (*Copy_pfFuncPtr)(void))
+{
+	uint8 Local_u8ErrorState = OK;
+	if(Copy_pfFuncPtr != NULL)
+	{
+		EXTI_pfINTFuncPtr[Copy_u8Interrupt] = Copy_pfFuncPtr;
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
 
+	return Local_u8ErrorState;
+}
+
+/**
+ * @brief INT0 ISR
+ */
+void __vector_1 (void) __attribute__((signal));
+void __vector_1 (void)
+{
+	if(EXTI_pfINTFuncPtr[EXTI_u8INT0] != NULL)
+	{
+		EXTI_pfINTFuncPtr[EXTI_u8INT0]();
+	}
+}
+
+/**
+ * @brief INT1 ISR
+ */
+void __vector_2 (void) __attribute__((signal));
+void __vector_2 (void)
+{
+	if(EXTI_pfINTFuncPtr[EXTI_u8INT1] != NULL)
+	{
+		EXTI_pfINTFuncPtr[EXTI_u8INT1]();
+	}
+}
+
+/**
+ * @brief INT2 ISR
+ */
+void __vector_3 (void) __attribute__((signal));
+void __vector_3 (void)
+{
+	if(EXTI_pfINTFuncPtr[EXTI_u8INT2] != NULL)
+	{
+		EXTI_pfINTFuncPtr[EXTI_u8INT2]();
+	}
 }
