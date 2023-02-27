@@ -180,8 +180,6 @@ uint8 DIO_u8TogglePinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin) {
 	uint8 Local_u8ErrorState = OK;
 	if(Copy_u8Pin <= DIO_u8PIN7)
 	{
-		if(Copy_u8Port == DIO_u8PIN_Low)
-		{
 			switch(Copy_u8Port) {
 			case DIO_u8PORTA :	TOG_BIT(PORTA,Copy_u8Pin);	break;
 			case DIO_u8PORTB :	TOG_BIT(PORTB,Copy_u8Pin);	break;
@@ -189,7 +187,6 @@ uint8 DIO_u8TogglePinValue(uint8 Copy_u8Port,uint8 Copy_u8Pin) {
 			case DIO_u8PORTD :	TOG_BIT(PORTD,Copy_u8Pin);	break;
 			default : Local_u8ErrorState = NOK;	break;
 			}
-		}
 	}else {
 		Local_u8ErrorState = NOK;
 	}
