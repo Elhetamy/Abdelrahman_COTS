@@ -11,6 +11,9 @@
 #define PRESCALER_MASK			0b11111000
 #define CHANNEL_MASK			0b11100000
 
+#define SINGLE_CONV_ASYNCH		0u
+#define CHAIN_CONV_ASYNCH		1u
+
 #define AREF_REF				1u
 #define AVCC_REF				2u
 #define INTERNAL_2560MV_REF		3u
