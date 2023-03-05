@@ -16,7 +16,9 @@
 static uint16* ADC_pu16ConversionResult = NULL;
 static void(*ADC_pvNotificationFunc)(void) = NULL;
 static uint8 ADC_u8BusyFlag = IDLE;
-
+static uint8 ADC_u8ChannelCounter;
+static ADC_ChainConv_t ADC_pstChainData= NULL;
+static uint8 ADC_u8IntReason;
 /**
  * @brief This Function initialize the basics configurations for ADC
  */
@@ -122,7 +124,7 @@ uint16 ADC_u16StartConversionSynch(uint8 Copy_u8Channel, uint16* Copy_pu16Result
 }
 
 
-uint8 ADC_u16StartConversionAsynch(uint8 Copy_u8Channel,uint16* Copy_pu16Result, void(*Copy_pvNotificationFunc)(void))
+uint8 ADC_u16StartSingleConversionAsynch(uint8 Copy_u8Channel,uint16* Copy_pu16Result, void(*Copy_pvNotificationFunc)(void))
 {
 	uint8 Local_u8ErrorState = OK;
 	if((Copy_pu16Result != NULL) && (Copy_pvNotificationFunc != NULL))
@@ -133,6 +135,8 @@ uint8 ADC_u16StartConversionAsynch(uint8 Copy_u8Channel,uint16* Copy_pu16Result,
 
 			/*ADC is now busy*/
 			ADC_u8BusyFlag = BUSY;
+
+			ADC_u8IntReason = SINGLE_CONV_ASYNCH;
 
 			/*Initialize The result pointer globally*/
 			ADC_pu16ConversionResult = Copy_pu16Result;
@@ -164,37 +168,121 @@ uint8 ADC_u16StartConversionAsynch(uint8 Copy_u8Channel,uint16* Copy_pu16Result,
 }
 
 
+uint8 ADC_u8StartChainConversionAsynch(ADC_ChainConv_t* Copy_pstChain)
+{
+	uint8 Local_u8ErrorState = OK;
+	if((Copy_pstChain != NULL) && (Copy_pstChain->ChainArr != NULL) && (Copy_pstChain->NotificationFunc != NULL) && (Copy_pstChain->ResultArr != NULL))
+	{
+		/*Check if adc is busy*/
+		if(ADC_u8BusyFlag == IDLE)
+		{
+			/*ADC is now busy*/
+			ADC_u8BusyFlag = BUSY;
+
+			/*Initialize the global chain data*/
+			ADC_pstChainData = Copy_pstChain;
+			ADC_u8ChannelCounter = 0u;
+
+			/*Set the first channel*/
+			ADMUX &= CHANNEL_MASK;
+			ADMUX |= ADC_pstChainData->ChainArr[ADC_u8ChannelCounter];
+
+			/*Start the first conversion*/
+			SET_BIT(ADCSRA,ADCSRA_u8ADSC);
+
+			/*Enable ADC conversion complete interrupt*/
+			SET_BIT(ADCSRA,ADCSRA_u8ADIE);
+
+
+
+		}
+		else
+		{
+			Local_u8ErrorState = BUSY_STATE_ERR;
+		}
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
+	return Local_u8ErrorState;
+}
+
+
 /**
  * @brief ADC Conversion Complete ISR
  */
 void __vector_16(void)		__attribute__((signal));
 void __vector_16(void)
 {
-	if(ADC_pu16ConversionResult != NULL)
+	if(ADC_u8IntReason == SINGLE_CONV_ASYNCH)
 	{
-#if ADC_u8RESOLUTION == EIGHT_BITS
-		*ADC_pu16ConversionResult = ADCH;
-#elif ADC_u8RESOLUTION == TEN_BITS
-		*ADC_pu16ConversionResult = ADC;
-#endif
-		/*Disable The ADC Conversion Complete Interrupt*/
-		CLR_BIT(ADCSRA,ADCSRA_u8ADIE);
-
-		/*ADC is now IDLE*/
-		ADC_u8BusyFlag = IDLE;
-
-		/*Invoke the application Notification function*/
-		if(ADC_pvNotificationFunc != NULL)
+		if(ADC_pu16ConversionResult != NULL)
 		{
-			ADC_pvNotificationFunc();
+#if ADC_u8RESOLUTION == EIGHT_BITS
+			*ADC_pu16ConversionResult = ADCH;
+#elif ADC_u8RESOLUTION == TEN_BITS
+			*ADC_pu16ConversionResult = ADC;
+#endif
+			/*Disable The ADC Conversion Complete Interrupt*/
+			CLR_BIT(ADCSRA,ADCSRA_u8ADIE);
+
+			/*ADC is now IDLE*/
+			ADC_u8BusyFlag = IDLE;
+
+			/*Invoke the application Notification function*/
+			if(ADC_pvNotificationFunc != NULL)
+			{
+				ADC_pvNotificationFunc();
+			}
+			else
+			{
+				/*Notification Function pointer is NULL*/
+			}
 		}
 		else
 		{
-			/*Notification Function pointer is NULL*/
+			/*Conversion Pointer is NULL*/
 		}
 	}
-	else
+	else	/*Interrupt reason is due to chain conversion*/
 	{
-		/*Conversion Pointer is NULL*/
+#if ADC_u8RESOLUTION == EIGHT_BITS
+			ADC_pstChainData->ResultArr[ADC_u8ChannelCounter] = ADCH;
+#elif ADC_u8RESOLUTION == TEN_BITS
+			ADC_pstChainData->ResultArr[ADC_u8ChannelCounter] = ADC;
+#endif
+
+			/*Channel Counter increment*/
+			ADC_u8ChannelCounter++;
+
+			if(ADC_u8ChannelCounter < ADC_pstChainData -> ChainSize)
+			{
+				/*Chain is not finished yet*/
+				/*Start the next conversion*/
+				ADMUX &= CHANNEL_MASK;
+				ADMUX |= ADC_pstChainData->ChainArr[ADC_u8ChannelCounter];
+
+				/*Start the first conversion*/
+				SET_BIT(ADCSRA,ADCSRA_u8ADSC);
+			}
+			else
+			{
+				/*Chain is finished*/
+				/*ADC is now IDLE*/
+				ADC_u8BusyFlag = IDLE;
+
+				/*Disable Interrupt*/
+				CLR_BIT(ADCSRA,ADCSRA_u8ADIE);
+				/*Invoke the notification function*/
+				if(ADC_pstChainData->NotificationFunc != NULL)
+				{
+					ADC_pstChainData->NotificationFunc();
+				}
+				else
+				{
+				 /*Do nothing*/
+				}
+			}
 	}
 }
