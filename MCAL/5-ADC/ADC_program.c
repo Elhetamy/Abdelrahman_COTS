@@ -17,7 +17,7 @@ static uint16* ADC_pu16ConversionResult = NULL;
 static void(*ADC_pvNotificationFunc)(void) = NULL;
 static uint8 ADC_u8BusyFlag = IDLE;
 static uint8 ADC_u8ChannelCounter;
-static ADC_ChainConv_t ADC_pstChainData= NULL;
+static ADC_ChainConv_t* ADC_pstChainData= NULL;
 static uint8 ADC_u8IntReason;
 /**
  * @brief This Function initialize the basics configurations for ADC
@@ -124,7 +124,7 @@ uint16 ADC_u16StartConversionSynch(uint8 Copy_u8Channel, uint16* Copy_pu16Result
 }
 
 
-uint8 ADC_u16StartSingleConversionAsynch(uint8 Copy_u8Channel,uint16* Copy_pu16Result, void(*Copy_pvNotificationFunc)(void))
+uint16 ADC_u16StartSingleConversionAsynch(uint8 Copy_u8Channel,uint16* Copy_pu16Result, void(*Copy_pvNotificationFunc)(void))
 {
 	uint8 Local_u8ErrorState = OK;
 	if((Copy_pu16Result != NULL) && (Copy_pvNotificationFunc != NULL))
@@ -179,6 +179,8 @@ uint8 ADC_u8StartChainConversionAsynch(ADC_ChainConv_t* Copy_pstChain)
 			/*ADC is now busy*/
 			ADC_u8BusyFlag = BUSY;
 
+			ADC_u8IntReason = CHAIN_CONV_ASYNCH;
+
 			/*Initialize the global chain data*/
 			ADC_pstChainData = Copy_pstChain;
 			ADC_u8ChannelCounter = 0u;
@@ -192,9 +194,6 @@ uint8 ADC_u8StartChainConversionAsynch(ADC_ChainConv_t* Copy_pstChain)
 
 			/*Enable ADC conversion complete interrupt*/
 			SET_BIT(ADCSRA,ADCSRA_u8ADIE);
-
-
-
 		}
 		else
 		{
@@ -256,14 +255,14 @@ void __vector_16(void)
 			/*Channel Counter increment*/
 			ADC_u8ChannelCounter++;
 
-			if(ADC_u8ChannelCounter < ADC_pstChainData -> ChainSize)
+			if(ADC_u8ChannelCounter < ADC_pstChainData->ChainSize)
 			{
 				/*Chain is not finished yet*/
 				/*Start the next conversion*/
 				ADMUX &= CHANNEL_MASK;
 				ADMUX |= ADC_pstChainData->ChainArr[ADC_u8ChannelCounter];
 
-				/*Start the first conversion*/
+				/*Start the conversion*/
 				SET_BIT(ADCSRA,ADCSRA_u8ADSC);
 			}
 			else
@@ -274,6 +273,8 @@ void __vector_16(void)
 
 				/*Disable Interrupt*/
 				CLR_BIT(ADCSRA,ADCSRA_u8ADIE);
+
+
 				/*Invoke the notification function*/
 				if(ADC_pstChainData->NotificationFunc != NULL)
 				{
