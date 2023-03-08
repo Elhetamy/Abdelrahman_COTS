@@ -28,12 +28,5 @@
 
 #define ADC_u32TIMEOUT		50000u
 
-typedef struct
-{
-	uint8* ADC_u8ChainSize;
-	uint8* ADC_ChannelArray;
-	uint8* ADC_ResultArray;
-	void   (*NotificationFunc)(void);
-}ADC_Chain_t;
 
 #endif /* ADC_CFG_H_ */
